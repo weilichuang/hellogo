@@ -10,17 +10,29 @@ import (
 )
 
 func main() {
-	fileInfos, err := ioutil.ReadDir("..")
+	dirs := make([]string, 0)
+	listDir("../..", dirs)
+}
+
+func listDir(dirpath string, dirs []string) {
+	fileInfos, err := ioutil.ReadDir(dirpath)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	for _, fileInfo := range fileInfos {
-		if fileInfo.IsDir() && fileInfo.Name() != "clean" && !IsFileHidden(fileInfo) {
-			fmt.Println(fileInfo.Name())
+	for _, subFile := range fileInfos {
+		if subFile.IsDir() && !IsFileHidden(subFile) {
+			fileDir := dirpath + "/" + subFile.Name()
+			dirs = append(dirs, fileDir)
+
+			fmt.Println("目录:", fileDir)
+			listDir(fileDir, dirs)
+		} else {
+			fmt.Println("文件:", subFile.Name())
 		}
 	}
+
 }
 
 func IsFileHidden(file os.FileInfo) bool {
